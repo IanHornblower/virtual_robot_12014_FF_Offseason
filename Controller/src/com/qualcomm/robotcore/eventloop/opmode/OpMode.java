@@ -83,7 +83,7 @@ public abstract class OpMode extends VirtualRobotController.OpModeBase {
      * <p>
      * This method will be called once when the INIT button is pressed.
      */
-    abstract public void init();
+    abstract public void init() throws Exception;
 
     /**
      * User defined init_loop method
