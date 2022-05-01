@@ -40,6 +40,7 @@ public class DriveTrain implements Subsystem {
         localizer = new GyroIntegratedThreeWheelOdometry(this);
 
         this.hwMap = hwMap;
+
     }
 
     public void setMotorPowers(double x, double y, double turn) {
@@ -47,10 +48,10 @@ public class DriveTrain implements Subsystem {
         double theta = Math.atan2(y, x) - Math.toRadians(45);
 
         double[] motorVector = new double[] {
-                h * Math.cos(theta) - turn,
+                h * Math.cos(theta) + turn,
                 h * Math.sin(theta) - turn,
                 h * Math.sin(theta) + turn,
-                h * Math.cos(theta) + turn
+                h * Math.cos(theta) - turn
         };
 
         setMotorPowers(motorVector[0], motorVector[1],
@@ -117,26 +118,12 @@ public class DriveTrain implements Subsystem {
         }
 
         localizer.initDoubleSuppliers(
-                new DoubleSupplier() {
-                    @Override
-                    public double getAsDouble() {
-                        return left.getCurrentPosition();
-                    }
-                    },
-                new DoubleSupplier() {
-                    @Override
-                    public double getAsDouble() {
-                        return right.getCurrentPosition();
-                    }
-                },
-                new DoubleSupplier() {
-                    @Override
-                    public double getAsDouble() {
-                        return lateral.getCurrentPosition();
-                    }
-                }
+                ()-> left.getCurrentPosition(),
+                ()-> right.getCurrentPosition(),
+                ()-> lateral.getCurrentPosition()
         );
-        localizer.setConstants(12, 1120, 1, 6);
+
+        localizer.setConstants(12, 1120, 1, -6);
         localizer.setMeasurement(GyroIntegratedThreeWheelOdometry.inputMeasurement.INCH);
 
         localizer.init();

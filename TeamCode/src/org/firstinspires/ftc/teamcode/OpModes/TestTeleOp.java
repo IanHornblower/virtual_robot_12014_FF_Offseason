@@ -25,7 +25,7 @@ public class TestTeleOp extends LinearOpMode {
 
 
 
-            actualRobot.driveTrain.setMotorPowers(1, 1, 0);
+            actualRobot.driveTrain.setMotorPowers(0.0, 0.0, 0.5);
 
             telemetry.addData("Pose Estimate", actualRobot.driveTrain.localizer.getPose().toString());
             telemetry.update();

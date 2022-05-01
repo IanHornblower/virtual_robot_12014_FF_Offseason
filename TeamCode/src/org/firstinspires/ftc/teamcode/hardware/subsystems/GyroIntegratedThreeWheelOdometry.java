@@ -168,13 +168,16 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
         previousLateral = currentLateral;
 
         // theta is flipped (leftD - rightD)
-        double dTheta = (dRight - dLeft) / (trackWidth);
-        double dx = (dLeft + dRight) / 2.0;
+        double dTheta = (dLeft - dRight) / (trackWidth);
         double dy = dLateral - lateralOffset * dTheta;
+        double dx = (dLeft + dRight) / 2.0;
 
         //double theta = pos.heading + (dtheta / 2.0);  // Does same thing as pos.heading | Might remove
 
-        Point deltaPosition = new Point(dx, dy).rotate(position.heading);  // Position heading is what needs to be merged
+        double dxTraveled = dx * Math.cos(position.heading) - dy * Math.sin(position.heading);
+        double dyTraveled = dx * Math.sin(position.heading) + dy * Math.cos(position.heading);
+
+        Point deltaPosition = new Point(-dxTraveled, dyTraveled);
 
         position.addPoint(deltaPosition);
         position.heading += dTheta;
