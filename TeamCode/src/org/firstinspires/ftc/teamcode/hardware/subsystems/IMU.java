@@ -54,8 +54,15 @@ public class IMU implements Subsystem {
         return currentHeading;
     }
 
+    double adjustedHeading;
+
     public double getHeadingInRadians() {
-        return getRawHeading();
+        if(getRawHeading() < 0.0) {
+            adjustedHeading += Math.PI * 2.0;
+        }
+        adjustedHeading = getRawHeading();
+
+        return adjustedHeading;
     }
 
     public double getHeadingInDegrees() {

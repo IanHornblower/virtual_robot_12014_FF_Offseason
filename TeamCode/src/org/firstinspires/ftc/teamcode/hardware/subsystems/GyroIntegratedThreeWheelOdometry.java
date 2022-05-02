@@ -14,9 +14,16 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
     DoubleSupplier left = null, right = null, lateral = null;
 
     Pose2D position = new Pose2D(0, 0, Math.toRadians(0)), startPosition = new Pose2D(0, 0, Math.toRadians(0));
+
+    double x = 0; // your initial state
+    double Q = 0.1; // your model covariance
+    double R = 0.4; // your sensor covariance
+    double p = 0; // your initial covariance guess
+    double K = 1; // your initial kalman gain guess
+
     boolean hasInitRun = false;
 
-    IMU imu;
+    public IMU imu;
 
     public enum inputMeasurement {
         INCH,
@@ -49,12 +56,11 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
     }
 
     public void resetEncoders() {
-
+        // TODO: Cant reset double supplier so reset in Drive Train (diffrent for actual robot)
     }
 
     public void setStartPosition(Pose2D startPosition) {
         this.startPosition = startPosition;
-
     }
 
     /**
@@ -139,6 +145,8 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
             throw new InterruptedException("Lateral must have a double supplying it");
         }
 
+        imu.init();
+
         // Set Position to where we start
         position = startPosition;
 
@@ -155,6 +163,9 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
         if(!hasInitRun) {
             throw new InterruptedException("Something is wrong! Make sure to run the init()");
         }
+
+        imu.update();
+
         double currentLeft = convertTicks(left.getAsDouble());
         double currentRight = convertTicks(right.getAsDouble());
         double currentLateral = convertTicks(lateral.getAsDouble());
@@ -167,22 +178,45 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
         previousRight = currentRight;
         previousLateral = currentLateral;
 
-        // theta is flipped (leftD - rightD)
         double dTheta = (dLeft - dRight) / (trackWidth);
-        double dy = dLateral - lateralOffset * dTheta;
-        double dx = (dLeft + dRight) / 2.0;
+        double dx = dLateral - lateralOffset * dTheta;
+        double dy = (dLeft + dRight) / 2.0;
 
-        //double theta = pos.heading + (dtheta / 2.0);  // Does same thing as pos.heading | Might remove
+        // TODO: Odom works w/o rotation but when it rotates it goes to shit so fix that
+        // TODO: When angle is dirived then add Kalman filter merging w/ imu
 
         double dxTraveled = dx * Math.cos(position.heading) - dy * Math.sin(position.heading);
         double dyTraveled = dx * Math.sin(position.heading) + dy * Math.cos(position.heading);
 
-        Point deltaPosition = new Point(-dxTraveled, dyTraveled);
+        Point deltaPosition = new Point(dxTraveled, dyTraveled);
 
         position.addPoint(deltaPosition);
         position.heading += dTheta;
 
         correctAngle();
+    }
+
+    double x_previous = x;
+    double p_previous = p;
+    double u = 0;
+    double z = 0;
+
+    public void mergeValue() {
+        u = position.heading;
+        x = x_previous + u;
+
+        p = p_previous + Q;
+
+        K = p/(p + R);
+
+        z = imu.getHeadingInRadians();
+        x = x + K * (z - x);
+
+        p = (1 - K) * p;
+
+        x_previous = x;
+        p_previous = p;
+
     }
 
     public Pose2D getPose() {

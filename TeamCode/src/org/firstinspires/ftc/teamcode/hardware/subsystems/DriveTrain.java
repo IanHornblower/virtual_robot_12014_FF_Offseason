@@ -4,10 +4,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces.Subsystem;
 import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
 
+import java.awt.event.ItemListener;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain implements Subsystem {
@@ -17,14 +19,18 @@ public class DriveTrain implements Subsystem {
 
     double fl, fr, bl, br;
 
-    DcMotorEx[] motors;
-    DcMotorEx[] deadWheels;
+    double[] abstractMotor = new double[] {fl, fr, bl, br};
+
+    public DcMotorEx[] motors;
+    public DcMotorEx[] deadWheels;
 
     HardwareMap hwMap;
 
     public GyroIntegratedThreeWheelOdometry localizer;
 
     public DriveTrain(HardwareMap hwMap) {
+        this.hwMap = hwMap;
+
         frontLeft = hwMap.get(DcMotorEx.class, "front_left_motor");
         frontRight = hwMap.get(DcMotorEx.class, "front_right_motor");
         backLeft = hwMap.get(DcMotorEx.class, "back_left_motor");
@@ -38,9 +44,6 @@ public class DriveTrain implements Subsystem {
         deadWheels = new DcMotorEx[] {left, right, lateral};
 
         localizer = new GyroIntegratedThreeWheelOdometry(this);
-
-        this.hwMap = hwMap;
-
     }
 
     public void setMotorPowers(double x, double y, double turn) {
@@ -48,10 +51,10 @@ public class DriveTrain implements Subsystem {
         double theta = Math.atan2(y, x) - Math.toRadians(45);
 
         double[] motorVector = new double[] {
-                h * Math.cos(theta) + turn,
-                h * Math.sin(theta) - turn,
-                h * Math.sin(theta) + turn,
-                h * Math.cos(theta) - turn
+                (h * Math.cos(theta) + turn),
+                (h * Math.sin(theta) - turn),
+                (h * Math.sin(theta) + turn),
+                (h * Math.cos(theta) - turn)
         };
 
         setMotorPowers(motorVector[0], motorVector[1],
@@ -93,6 +96,10 @@ public class DriveTrain implements Subsystem {
         this.br = br;
     }
 
+    public void stopDriveTrain() {
+        setMotorPowers(0, 0, 0, 0);
+    }
+
     public void emergencyStop() {
         for(DcMotorEx m : motors) {
             m.setPower(0.0);
@@ -118,9 +125,9 @@ public class DriveTrain implements Subsystem {
         }
 
         localizer.initDoubleSuppliers(
-                ()-> left.getCurrentPosition(),
+                ()-> -left.getCurrentPosition(),
                 ()-> right.getCurrentPosition(),
-                ()-> lateral.getCurrentPosition()
+                ()-> -lateral.getCurrentPosition()
         );
 
         localizer.setConstants(12, 1120, 1, -6);
