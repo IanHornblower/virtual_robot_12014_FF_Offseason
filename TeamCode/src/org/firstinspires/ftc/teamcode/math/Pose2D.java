@@ -34,7 +34,11 @@ public class Pose2D {
     }
 
     public double getHeading() {
-        return AngleUtil.normalize(AngleUtil.fixTheta(heading));
+        return heading;
+    }
+
+    public Pose2D div(double n) {
+        return new Pose2D(x/n, y/n, heading/n);
     }
 
     public double getHeadingInDegrees() {

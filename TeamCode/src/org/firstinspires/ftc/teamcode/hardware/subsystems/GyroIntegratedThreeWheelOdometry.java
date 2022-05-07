@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces.Odometry;
 import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
@@ -15,11 +16,17 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
 
     Pose2D position = new Pose2D(0, 0, Math.toRadians(0)), startPosition = new Pose2D(0, 0, Math.toRadians(0));
 
-    double x = 0; // your initial state
-    double Q = 0.1; // your model covariance
-    double R = 0.4; // your sensor covariance
-    double p = 0; // your initial covariance guess
-    double K = 1; // your initial kalman gain guess
+    boolean kalmanInit = false;
+    double x = 0.0; // your initial state
+    double Q = 1; // your model covariance
+    double R = 3; // your sensor covariance
+    double p = 1; // your initial covariance guess
+    double K = 0.0; // your initial kalman gain guess
+
+    double x_previous = x;
+    double p_previous = p;
+
+    public double kalmanOutput = 0;
 
     boolean hasInitRun = false;
 
@@ -51,16 +58,21 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
         this.lateralOffset = lateralOffset;
     }
 
+    public void setKalmanConstants(double x, double Q, double R, double p, double K) {
+        kalmanInit = true;
+        this.x = x;
+        this.Q = Q;
+        this.R = R;
+        this.p = p;
+        this.K = K;
+    }
+
     public void setMeasurement(inputMeasurement measurement) {
         this.measurement = measurement;
     }
 
-    public void resetEncoders() {
-        // TODO: Cant reset double supplier so reset in Drive Train (diffrent for actual robot)
-    }
-
     public void setStartPosition(Pose2D startPosition) {
-        this.startPosition = startPosition;
+        this.position = startPosition;
     }
 
     /**
@@ -125,10 +137,6 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
             throw new InterruptedException("wheelRadius has no value");
         }
 
-        if(lateralOffset == 0.0) {
-            throw new InterruptedException("Lateral Offset is Zero");
-        }
-
         if(measurement == null) {
             throw new InterruptedException("type must have a value (ie: INCH)");
         }
@@ -143,6 +151,9 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
 
         if(lateral == null) {
             throw new InterruptedException("Lateral must have a double supplying it");
+        }
+        if(kalmanInit == false) {
+            throw new InterruptedException("Set Values for the Kalman Gains");
         }
 
         imu.init();
@@ -182,41 +193,37 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
         double dx = dLateral - lateralOffset * dTheta;
         double dy = (dLeft + dRight) / 2.0;
 
-        // TODO: Odom works w/o rotation but when it rotates it goes to shit so fix that
-        // TODO: When angle is dirived then add Kalman filter merging w/ imu
+        double newAngle = position.heading + dTheta / 2;
 
-        double dxTraveled = dx * Math.cos(position.heading) - dy * Math.sin(position.heading);
-        double dyTraveled = dx * Math.sin(position.heading) + dy * Math.cos(position.heading);
+        //Point deltaPosition = new Point(dy, dx).rotate(getKalmanHeading()).invertPoint();
+        Point deltaPosition = new Point(dx, dy).rotate(newAngle);
 
-        Point deltaPosition = new Point(dxTraveled, dyTraveled);
+        deltaPosition.invertX();
 
         position.addPoint(deltaPosition);
         position.heading += dTheta;
 
         correctAngle();
+        mergeValues(dTheta);
     }
 
-    double x_previous = x;
-    double p_previous = p;
-    double u = 0;
-    double z = 0;
-
-    public void mergeValue() {
-        u = position.heading;
-        x = x_previous + u;
+    public void mergeValues(double deltaTheta) {
+        x = x_previous + deltaTheta;
 
         p = p_previous + Q;
 
         K = p/(p + R);
 
-        z = imu.getHeadingInRadians();
-        x = x + K * (z - x);
+        x += K * (imu.getHeadingInRadians() - x);
 
-        p = (1 - K) * p;
+        p *= 1 - K;
 
         x_previous = x;
         p_previous = p;
+    }
 
+    public double getKalmanHeading() {
+        return x;
     }
 
     public Pose2D getPose() {

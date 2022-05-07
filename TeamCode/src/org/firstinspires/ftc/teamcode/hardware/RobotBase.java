@@ -49,7 +49,7 @@ public class RobotBase extends OpMode implements Robot {
 
     @Override
     public void resetEncoders() {
-        driveTrain.localizer.resetEncoders();
+        driveTrain.resetOdometers();
         //lift.resetEncoders();
         duck.resetEncoder();
     }

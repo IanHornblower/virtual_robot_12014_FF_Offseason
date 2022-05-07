@@ -5,11 +5,19 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
+import org.firstinspires.ftc.teamcode.control.CornetCore;
+import org.firstinspires.ftc.teamcode.control.PurePursuit;
+import org.firstinspires.ftc.teamcode.control.Trajectory;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces.Subsystem;
+import org.firstinspires.ftc.teamcode.math.Curve;
 import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
+import org.firstinspires.ftc.teamcode.util.Timer;
+
+import static org.firstinspires.ftc.teamcode.hardware.DriveConstants.*;
 
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain implements Subsystem {
@@ -27,6 +35,11 @@ public class DriveTrain implements Subsystem {
     HardwareMap hwMap;
 
     public GyroIntegratedThreeWheelOdometry localizer;
+
+    // TODO: REDO LATER
+    CornetCore motionProfile = new CornetCore(
+            xPID, yPID, headingPID
+    );
 
     public DriveTrain(HardwareMap hwMap) {
         this.hwMap = hwMap;
@@ -76,7 +89,7 @@ public class DriveTrain implements Subsystem {
 
         calculatePosition(
                 vector.hypot(),
-                vector.atan2() - localizer.imu.getHeadingInRadians(),
+                vector.atan2() + localizer.getKalmanHeading() - Math.toRadians(90),
                 turn);
     }
 
@@ -115,6 +128,61 @@ public class DriveTrain implements Subsystem {
         localizer.setStartPosition(pose);
     }
 
+    public void resetOdometers() {
+        for(DcMotorEx odometer:deadWheels) {
+            odometer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            odometer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
+
+    public void setWeightedDrivePower(double x, double y, double heading) {
+        Pose2D vel = new Pose2D(x, y, heading);
+
+        if (Math.abs(x) + Math.abs(y)
+                + Math.abs(heading) > 1) {
+            // re-normalize the powers according to the weights
+            double denom = VX_WEIGHT * Math.abs(x)
+                    + VY_WEIGHT * Math.abs(y)
+                    + TURN_WEIGHT * Math.abs(heading);
+
+            vel = new Pose2D(
+                    VX_WEIGHT * x,
+                    VY_WEIGHT * y,
+                    TURN_WEIGHT * heading
+            ).div(denom);
+        }
+
+        setMotorPowers(vel.x, vel.y, vel.heading);
+    }
+
+    public void setFieldCentricDrivePower(double x, double y, double heading) {
+        Pose2D vel = new Pose2D(x, y, heading);
+
+        if (Math.abs(x) + Math.abs(y)
+                + Math.abs(heading) > 1) {
+            // re-normalize the powers according to the weights
+            double denom = VX_WEIGHT * Math.abs(x)
+                    + VY_WEIGHT * Math.abs(y)
+                    + TURN_WEIGHT * Math.abs(heading);
+
+            vel = new Pose2D(
+                    VX_WEIGHT * x,
+                    VY_WEIGHT * y,
+                    TURN_WEIGHT * heading
+            ).div(denom);
+        }
+
+        driveFieldCentric(vel.x, vel.y, vel.heading);
+    }
+
+    public void runToPosition(double x, double y, double heading) {
+        motionProfile.runToPosition(this, x, y, heading);
+    }
+
+    public void rotate(double heading) {
+        motionProfile.rotate(this, heading);
+    }
+
     @Override
     public void init() throws InterruptedException {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -124,17 +192,22 @@ public class DriveTrain implements Subsystem {
             m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
+        resetOdometers();
+
         localizer.initDoubleSuppliers(
                 ()-> -left.getCurrentPosition(),
                 ()-> right.getCurrentPosition(),
-                ()-> -lateral.getCurrentPosition()
+                ()-> lateral.getCurrentPosition()
         );
 
-        localizer.setConstants(12, 1120, 1, -6);
+        localizer.setConstants(12, 1120, 1, 0.0);
         localizer.setMeasurement(GyroIntegratedThreeWheelOdometry.inputMeasurement.INCH);
+
+        localizer.setKalmanConstants(0.0, 1, 3, 1, 0.0);
 
         localizer.init();
     }
+
 
     @Override
     public void update() throws InterruptedException {

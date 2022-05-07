@@ -21,9 +21,21 @@ public class Point {
         y = tempX;
     }
 
+    public Point invertPoint() {
+        return new Point(y,x);
+    }
+
     public void scalePose(double scaleFactor) {
         x *= scaleFactor;
         y *= scaleFactor;
+    }
+
+    public void invertX() {
+        x *= -1;
+    }
+
+    public void invertY() {
+        y *= -1;
     }
 
     public Point scalar(double scaleFactor) {
@@ -78,18 +90,11 @@ public class Point {
     }
 
     public Point rotate(double angleRadians) {
-        if(angleRadians > Math.PI * 2.0) {
-            angleRadians -= 2.0 * Math.PI;
-        }
-        else if(angleRadians < 0) {
-            angleRadians += 2.0 * Math.PI;
-        }
-
         double cosA = Math.cos(angleRadians);
         double sinA = Math.sin(angleRadians);
 
         double x = this.x * cosA - this.y * sinA;
-        double y = this.x * sinA - this.y * cosA;
+        double y = this.x * sinA + this.y * cosA;
 
         return new Point(x, y);
     }
