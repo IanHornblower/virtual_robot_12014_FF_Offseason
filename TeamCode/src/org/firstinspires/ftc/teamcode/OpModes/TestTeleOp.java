@@ -43,6 +43,7 @@ public class TestTeleOp extends LinearOpMode {
         TrajectorySequence trajS = new TrajectorySequence(s);
 
         int count = 0;
+        boolean start = false;
 
         waitForStart();
 
@@ -53,25 +54,24 @@ public class TestTeleOp extends LinearOpMode {
 
             // TODO: get a better Traj Seq system
 
-            /**
 
+            if(!start) {
+                f.setTrajectory(joe);
+                start = true;
+            }
             if(!oej.isStarted() && f.isCompleted()) {
+                f.reverse();
                 f.setTrajectory(oej);
             }
             if(joe.isComplete() && oej.isComplete()) {
                 f.setState(TrajectoryFollower.STATE.STOPPED);
             }
-
-             */
-
-            if(!s.get(trajS.getCompletedCount()).isStarted()) {
-                f.setTrajectory(s.get(trajS.getCompletedCount()));
+            if(!joe.isComplete() || !oej.isComplete()) {
+                f.AnglePursuitFollower(8);
             }
-            if(trajS.isCompleted()) {
-                f.setState(TrajectoryFollower.STATE.STOPPED);
+            if(oej.isComplete()) {
+                actualRobot.driveTrain.rotate(0);
             }
-
-            f.SetHeadingFollower(8, Math.toRadians(270));
             actualRobot.update();
 
 

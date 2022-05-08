@@ -38,7 +38,7 @@ public class DriveTrain implements Subsystem {
 
     // TODO: REDO LATER
     CornetCore motionProfile = new CornetCore(
-            xPID, yPID, headingPID
+            xPID, yPID, headingPID, forwardPID, turnPID
     );
 
     public DriveTrain(HardwareMap hwMap) {
@@ -177,6 +177,14 @@ public class DriveTrain implements Subsystem {
 
     public void runToPosition(double x, double y, double heading) {
         motionProfile.runToPosition(this, x, y, heading);
+    }
+
+    public void difRunToPosition(double x, double y, boolean reversed) {
+        motionProfile.difRunToPosition(this, x, y, reversed);
+    }
+
+    public void difRunToPosition(double x, double y, double heading, boolean reversed) {
+        motionProfile.difRunToPosition(this, x, y, heading, reversed);
     }
 
     public void rotate(double heading) {

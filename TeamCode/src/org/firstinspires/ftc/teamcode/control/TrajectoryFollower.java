@@ -29,6 +29,7 @@ public class TrajectoryFollower extends LinearOpMode {
 
     boolean init = false;
     boolean isCompleted = false;
+    boolean reversed = false;
     int closestPointIndex = 0;
     double runningCount = 1e+6;
 
@@ -60,6 +61,18 @@ public class TrajectoryFollower extends LinearOpMode {
 
     public void setState(STATE s) {
         state = s;
+    }
+
+    public STATE state() {
+        return state;
+    }
+
+    public void reverse() {
+        reversed = true;
+    }
+
+    public void forward() {
+        reversed = true;
     }
 
     public void HolonomicFollower(double radius) throws InterruptedException {
@@ -125,7 +138,7 @@ public class TrajectoryFollower extends LinearOpMode {
 
                 double angle = Math.toRadians(270)-Curve.getAngle(pointToFollow, dt.localizer.getPose().toPoint());
 
-                dt.runToPosition(pointToFollow.x, pointToFollow.y, angle);
+                dt.difRunToPosition(pointToFollow.x, pointToFollow.y, angle, reversed);
 
                 double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
 
