@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode.control;
 
-import static com.qualcomm.robotcore.eventloop.opmode.OpMode.*;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
-import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
 import org.firstinspires.ftc.teamcode.util.AngleUtil;
 

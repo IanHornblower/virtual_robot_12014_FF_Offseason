@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.control;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.math.Curve;
 import org.firstinspires.ftc.teamcode.math.Point;
@@ -9,7 +8,6 @@ import org.firstinspires.ftc.teamcode.math.Pose2D;
 import org.firstinspires.ftc.teamcode.util.Timer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TrajectoryFollower extends LinearOpMode {
 
@@ -121,7 +119,6 @@ public class TrajectoryFollower extends LinearOpMode {
 
     }
 
-    // TODO: add ability to back trace it so it doesn't double back
     public void AnglePursuitFollower(double radius) throws InterruptedException {
         switch (state) {
             case START:
@@ -158,6 +155,40 @@ public class TrajectoryFollower extends LinearOpMode {
     }
 
     public void SetHeadingFollower(double radius, double heading) throws InterruptedException {
+        switch (state) {
+            case START:
+                currentTrajectory.setStart();
+                path = currentTrajectory.getPath();
+                extendedPath = PurePursuit.extendPath(path, radius);
+
+                lastIndex = path.size()-1;
+                lastPoint = path.get(lastIndex);
+                state = STATE.RUNNING;
+                break;
+            case RUNNING:
+                pointToFollow = PurePursuit.getLookAheadPoint(extendedPath, dt, radius);
+
+                dt.runToPosition(pointToFollow.x, pointToFollow.y, heading);
+
+                double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
+
+                // Trajectory is Finished if the timeout has been reached, or we are within our distance tolerance
+                if((timer.currentSeconds() > timeout) || (error < distanceTolerance)) state = STATE.COMPLETED;
+                break;
+            case COMPLETED:
+                currentTrajectory.complete();
+                isCompleted = true;
+                state = STATE.STOPPED;
+                break;
+            case STOPPED:
+                dt.stopDriveTrain();
+                break;
+        }
+
+    }
+
+    public void actualHolonomicFollower(double heading) throws InterruptedException {
+        double radius = 1;
         switch (state) {
             case START:
                 currentTrajectory.setStart();

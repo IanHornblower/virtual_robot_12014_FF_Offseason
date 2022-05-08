@@ -19,7 +19,7 @@ public class TestTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         RobotBase actualRobot = new RobotBase(hardwareMap);
-        TrajectoryFollower f = new TrajectoryFollower(actualRobot.driveTrain, 99, 0.5);
+        TrajectoryFollower f = new TrajectoryFollower(actualRobot.driveTrain, 4.5, 0.5);
 
         actualRobot.initHardwareMap();
         actualRobot.driveTrain.setStartPosition(new Pose2D(0, 0, Math.toRadians(0)));
@@ -29,9 +29,11 @@ public class TestTeleOp extends LinearOpMode {
         joe.add(new Pose2D(0, 0, 0));
         joe.add(new Pose2D(24, 24, Math.toRadians(90)));
         joe.add(new Pose2D(24, 48, 0));
+        joe.add(new Pose2D(24, 60, 0));
 
         Trajectory oej = new Trajectory();
 
+        oej.add(new Pose2D(24, 60, 0));
         oej.add(new Pose2D(24, 48, 0));
         oej.add(new Pose2D(24, 24, Math.toRadians(90)));
         oej.add(new Pose2D(0, 0, 0));
@@ -67,7 +69,7 @@ public class TestTeleOp extends LinearOpMode {
                 f.setState(TrajectoryFollower.STATE.STOPPED);
             }
             if(!joe.isComplete() || !oej.isComplete()) {
-                f.AnglePursuitFollower(8);
+                f.AnglePursuitFollower(10);
             }
             if(oej.isComplete()) {
                 actualRobot.driveTrain.rotate(0);

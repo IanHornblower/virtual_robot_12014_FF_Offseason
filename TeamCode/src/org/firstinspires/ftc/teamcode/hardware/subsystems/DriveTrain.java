@@ -4,21 +4,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
-import org.firstinspires.ftc.teamcode.control.CornetCore;
-import org.firstinspires.ftc.teamcode.control.PurePursuit;
-import org.firstinspires.ftc.teamcode.control.Trajectory;
+import org.firstinspires.ftc.teamcode.control.EncoderMotionProfile;
+import org.firstinspires.ftc.teamcode.control.MotionProfile;
+import org.firstinspires.ftc.teamcode.control.OdometricMotionProfile;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces.Subsystem;
-import org.firstinspires.ftc.teamcode.math.Curve;
 import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
-import org.firstinspires.ftc.teamcode.util.Timer;
+
+import javax.swing.*;
 
 import static org.firstinspires.ftc.teamcode.hardware.DriveConstants.*;
-
-import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.function.DoubleSupplier;
 
 public class DriveTrain implements Subsystem {
 
@@ -37,7 +32,8 @@ public class DriveTrain implements Subsystem {
     public GyroIntegratedThreeWheelOdometry localizer;
 
     // TODO: REDO LATER
-    CornetCore motionProfile = new CornetCore(
+
+    MotionProfile motionProfile = new OdometricMotionProfile(
             xPID, yPID, headingPID, forwardPID, turnPID
     );
 
@@ -128,10 +124,14 @@ public class DriveTrain implements Subsystem {
         localizer.setStartPosition(pose);
     }
 
-    public void resetOdometers() {
+    public void resetEncoders() {
         for(DcMotorEx odometer:deadWheels) {
             odometer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             odometer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        for(DcMotorEx motors:motors) {
+            motors.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motors.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
     }
 
@@ -175,19 +175,19 @@ public class DriveTrain implements Subsystem {
         driveFieldCentric(vel.x, vel.y, vel.heading);
     }
 
-    public void runToPosition(double x, double y, double heading) {
+    public void runToPosition(double x, double y, double heading) throws InterruptedException {
         motionProfile.runToPosition(this, x, y, heading);
     }
 
-    public void difRunToPosition(double x, double y, boolean reversed) {
+    public void difRunToPosition(double x, double y, boolean reversed) throws InterruptedException {
         motionProfile.difRunToPosition(this, x, y, reversed);
     }
 
-    public void difRunToPosition(double x, double y, double heading, boolean reversed) {
+    public void difRunToPosition(double x, double y, double heading, boolean reversed) throws InterruptedException {
         motionProfile.difRunToPosition(this, x, y, heading, reversed);
     }
 
-    public void rotate(double heading) {
+    public void rotate(double heading) throws InterruptedException {
         motionProfile.rotate(this, heading);
     }
 
@@ -200,7 +200,7 @@ public class DriveTrain implements Subsystem {
             m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        resetOdometers();
+        resetEncoders();
 
         localizer.initDoubleSuppliers(
                 ()-> -left.getCurrentPosition(),

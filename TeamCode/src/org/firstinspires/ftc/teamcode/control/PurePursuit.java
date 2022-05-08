@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.control;
 
-import com.acmerobotics.roadrunner.drive.Drive;
-import org.firstinspires.ftc.teamcode.hardware.RobotBase;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
 
-import java.awt.dnd.DragGestureEvent;
 import java.util.ArrayList;
 
 public class PurePursuit {
