@@ -3,13 +3,11 @@ package org.firstinspires.ftc.teamcode.OpModes;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import org.firstinspires.ftc.teamcode.asyncUtil.actions.Rotate;
 import org.firstinspires.ftc.teamcode.control.*;
 import org.firstinspires.ftc.teamcode.hardware.RobotBase;
-import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
-import org.firstinspires.ftc.teamcode.util.Timer;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 
 @TeleOp(name = "Ogga Booga TestTeleoP", group = "no")
@@ -19,24 +17,22 @@ public class TestTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         RobotBase actualRobot = new RobotBase(hardwareMap);
-        TrajectoryFollower f = new TrajectoryFollower(actualRobot.driveTrain, 4.5, 0.5);
+        TrajectoryFollower f = new TrajectoryFollower(actualRobot.driveTrain, 99, 0.5);
+        TrajectoryFollower x = new TrajectoryFollower(actualRobot.driveTrain, 99, 0.5);
 
         actualRobot.initHardwareMap();
-        actualRobot.driveTrain.setStartPosition(new Pose2D(0, 0, Math.toRadians(0)));
+        actualRobot.driveTrain.setStartPosition(new Pose2D(63, 12, Math.toRadians(90)));
 
         Trajectory joe = new Trajectory();
 
-        joe.add(new Pose2D(0, 0, 0));
-        joe.add(new Pose2D(24, 24, Math.toRadians(90)));
-        joe.add(new Pose2D(24, 48, 0));
-        joe.add(new Pose2D(24, 60, 0));
+        joe.add(new Pose2D(63, 12, Math.toRadians(90)));
+        joe.add(new Pose2D(38, 0, 0));
 
         Trajectory oej = new Trajectory();
 
-        oej.add(new Pose2D(24, 60, 0));
-        oej.add(new Pose2D(24, 48, 0));
-        oej.add(new Pose2D(24, 24, Math.toRadians(90)));
-        oej.add(new Pose2D(0, 0, 0));
+        oej.add(new Pose2D(38, 0, 0));
+        oej.add(new Pose2D(63, 10, 0));
+        oej.add(new Pose2D(63, 40, 0));
 
         ArrayList<Trajectory> s = new ArrayList<>();
         s.add(joe);
@@ -47,34 +43,55 @@ public class TestTeleOp extends LinearOpMode {
         int count = 0;
         boolean start = false;
 
+        Rotate lol = new Rotate(actualRobot.driveTrain, Math.toRadians(0));
+        Rotate joj = new Rotate(actualRobot.driveTrain, Math.toRadians(45));
+
+        ArrayList<Rotate> seq = new ArrayList<>();
+
+        seq.add(lol);
+        seq.add(joj);
+
         waitForStart();
 
         while (opModeIsActive()) {
-            double x = actualRobot.driverGamepad.leftJoystick.x();
+            //double x = actualRobot.driverGamepad.leftJoystick.x();
             double y = actualRobot.driverGamepad.leftJoystick.y();
             double turn = actualRobot.driverGamepad.rightJoystick.x();
 
             // TODO: get a better Traj Seq system
 
+            //actualRobot.driveTrain.setMotorPowers(x,y,turn);
+
+
+
+            actualRobot.update();
+
+            /**
 
             if(!start) {
                 f.setTrajectory(joe);
+                f.reverse();
                 start = true;
             }
             if(!oej.isStarted() && f.isCompleted()) {
-                f.reverse();
-                f.setTrajectory(oej);
+                //f.forward();
+                x .setTrajectory(oej);
+
             }
             if(joe.isComplete() && oej.isComplete()) {
                 f.setState(TrajectoryFollower.STATE.STOPPED);
             }
-            if(!joe.isComplete() || !oej.isComplete()) {
+            if(!oej.isStarted()) {
                 f.AnglePursuitFollower(10);
             }
-            if(oej.isComplete()) {
-                actualRobot.driveTrain.rotate(0);
+            if(oej.isStarted()) {
+                x.AnglePursuitFollower(10);
             }
-            actualRobot.update();
+            if(oej.isComplete()) {
+                //actualRobot.driveTrain.rotate(0);
+            }
+
+             */
 
 
 

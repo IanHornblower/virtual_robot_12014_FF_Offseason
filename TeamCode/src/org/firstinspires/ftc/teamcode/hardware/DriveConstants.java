@@ -15,4 +15,7 @@ public class DriveConstants {
     public static PIDCoefficients forwardPID = new PIDCoefficients(0.08, 0 ,0);
     public static PIDCoefficients turnPID = new PIDCoefficients(3, 0 ,0);
 
+    public static double rotationTolerance = Math.toRadians(2);
+    public static double distanceTolerance = 0.5; // Inches
+
 }

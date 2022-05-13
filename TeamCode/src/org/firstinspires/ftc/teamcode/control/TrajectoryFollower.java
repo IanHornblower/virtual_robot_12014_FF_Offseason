@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.util.Timer;
 
 import java.util.ArrayList;
 
+// TODO: new system in place for ASYNC travel this will be removed and replaced with individual actions
+
 public class TrajectoryFollower extends LinearOpMode {
 
     DriveTrain dt;
