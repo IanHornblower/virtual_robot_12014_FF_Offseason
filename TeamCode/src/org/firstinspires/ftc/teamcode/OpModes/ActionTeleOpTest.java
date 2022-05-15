@@ -4,10 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.asyncUtil.Action;
+import org.firstinspires.ftc.teamcode.asyncUtil.ActionSequence;
 import org.firstinspires.ftc.teamcode.asyncUtil.ActionSequenceRunner;
-import org.firstinspires.ftc.teamcode.asyncUtil.actions.FollowPurePursuitTrajectory;
-import org.firstinspires.ftc.teamcode.asyncUtil.actions.Rotate;
-import org.firstinspires.ftc.teamcode.asyncUtil.actions.RunToPosition;
+import org.firstinspires.ftc.teamcode.asyncUtil.actions.*;
 import org.firstinspires.ftc.teamcode.control.Trajectory;
 import org.firstinspires.ftc.teamcode.hardware.RobotBase;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
@@ -19,7 +18,6 @@ public class ActionTeleOpTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         RobotBase actualRobot = new RobotBase(hardwareMap);
         ActionSequenceRunner runner = new ActionSequenceRunner(actualRobot);
 
@@ -32,13 +30,21 @@ public class ActionTeleOpTest extends LinearOpMode {
         test.add(new Pose2D(24, 24, 0));
         test.add(new Pose2D(24, 48, 0));
 
-        ArrayList<Action> actionList = new ArrayList<>();
+        Trajectory ReverseTest = new Trajectory();
+        ReverseTest.add(new Pose2D(24, 48, 0));
+        ReverseTest.add(new Pose2D(24, 24, 0));
+        ReverseTest.add(new Pose2D(0, 0, 0));
 
-        actionList.add(new FollowPurePursuitTrajectory(actualRobot.driveTrain, test, 8));
-        //actionList.add(new Rotate(actualRobot.driveTrain, Math.toRadians(90)));
-        actionList.add(new RunToPosition(actualRobot.driveTrain, new Pose2D(24, 24, Math.toRadians(0))));
+        ActionSequence as = new ActionSequence();
+        as.addAction(new ForwardBackwardControl(actualRobot.driveTrain, -3000));
+        //as.addAction(new EncoderDriveEx(actualRobot.driveTrain, 1, 1, Math.toRadians(90), 3000, true));
+        //as.addFollowPurePursuitTrajectory(actualRobot.driveTrain, test, 8);
+        //as.addCustomAction(()->System.out.println("DQ"));
+        //as.addFollowPurePursuitTrajectory(actualRobot.driveTrain, ReverseTest, 8, true);
+        //as.addAction(new Wait(2));
+        //as.addRunToPosition(actualRobot.driveTrain, new Pose2D(24, 24, Math.toRadians(0)));
 
-        runner.setActionSequence(actionList);
+        runner.setActionSequence(as.getActionList());
 
         waitForStart();
 

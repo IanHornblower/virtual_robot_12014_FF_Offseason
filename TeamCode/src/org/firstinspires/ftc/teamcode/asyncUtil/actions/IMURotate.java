@@ -4,14 +4,14 @@ import org.firstinspires.ftc.teamcode.asyncUtil.Action;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.math.Curve;
 
-import static org.firstinspires.ftc.teamcode.hardware.DriveConstants.*;
+import static org.firstinspires.ftc.teamcode.hardware.DriveConstants.rotationTolerance;
 
-public class Rotate extends Action {
+public class IMURotate extends Action {
 
     DriveTrain dt;
     double heading;
 
-    public Rotate(DriveTrain dt, double heading) {
+    public IMURotate(DriveTrain dt, double heading) {
         this.dt = dt;
         this.heading = heading;
     }
@@ -24,7 +24,7 @@ public class Rotate extends Action {
     @Override
     public void runAction() throws InterruptedException {
         dt.rotate(heading);
-        error = Curve.getShortestDistance(heading, dt.localizer.getPose().heading);
+        error = Curve.getShortestDistance(heading, dt.localizer.imu.getHeadingInRadians());
         isComplete = error < rotationTolerance;
     }
 

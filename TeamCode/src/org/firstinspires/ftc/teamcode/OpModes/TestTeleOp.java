@@ -21,12 +21,14 @@ public class TestTeleOp extends LinearOpMode {
         TrajectoryFollower x = new TrajectoryFollower(actualRobot.driveTrain, 99, 0.5);
 
         actualRobot.initHardwareMap();
-        actualRobot.driveTrain.setStartPosition(new Pose2D(63, 12, Math.toRadians(90)));
+        //actualRobot.driveTrain.setStartPosition(new Pose2D(63, 12, Math.toRadians(90)));
+        actualRobot.driveTrain.setStartPosition(new Pose2D(0, 0, Math.toRadians(0)));
 
         Trajectory joe = new Trajectory();
 
-        joe.add(new Pose2D(63, 12, Math.toRadians(90)));
-        joe.add(new Pose2D(38, 0, 0));
+        joe.add(new Pose2D(0, 0, Math.toRadians(0)));
+        joe.add(new Pose2D(24, 24, Math.toRadians(45)));
+        joe.add(new Pose2D(24, 48, Math.toRadians(90)));
 
         Trajectory oej = new Trajectory();
 
@@ -51,18 +53,13 @@ public class TestTeleOp extends LinearOpMode {
         seq.add(lol);
         seq.add(joj);
 
+        f.setTrajectory(joe);
+
         waitForStart();
 
         while (opModeIsActive()) {
-            //double x = actualRobot.driverGamepad.leftJoystick.x();
-            double y = actualRobot.driverGamepad.leftJoystick.y();
-            double turn = actualRobot.driverGamepad.rightJoystick.x();
 
-            // TODO: get a better Traj Seq system
-
-            //actualRobot.driveTrain.setMotorPowers(x,y,turn);
-
-
+            f.tightHolonomicFollower(8);
 
             actualRobot.update();
 

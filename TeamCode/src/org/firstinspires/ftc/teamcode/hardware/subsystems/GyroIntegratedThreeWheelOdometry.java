@@ -15,6 +15,8 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
 
     Pose2D position = new Pose2D(0, 0, Math.toRadians(0)), startPosition = new Pose2D(0, 0, Math.toRadians(0));
 
+    public double accumulatedDistance = 0;
+
     boolean kalmanInit = false;
     double x = 0.0; // your initial state
     double Q = 1; // your model covariance
@@ -202,6 +204,8 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
         position.addPoint(deltaPosition);
         position.heading += dTheta;
 
+        accumulatedDistance += Math.hypot(deltaPosition.x, deltaPosition.y);
+
         correctAngle();
         mergeValues(dTheta);
     }
@@ -219,6 +223,10 @@ public class GyroIntegratedThreeWheelOdometry extends Odometry {
 
         x_previous = x;
         p_previous = p;
+    }
+
+    public void resetAccumulatedDistance() {
+        accumulatedDistance = 0;
     }
 
     public double getKalmanHeading() {

@@ -5,7 +5,6 @@ import org.firstinspires.ftc.teamcode.control.PurePursuit;
 import org.firstinspires.ftc.teamcode.control.Trajectory;
 import org.firstinspires.ftc.teamcode.control.TrajectoryFollower;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
-import org.firstinspires.ftc.teamcode.math.Curve;
 import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
 
@@ -13,11 +12,12 @@ import java.util.ArrayList;
 
 import static org.firstinspires.ftc.teamcode.hardware.DriveConstants.distanceTolerance;
 
-public class FollowPurePursuitTrajectory extends Action {
+public class FollowSetHeadingHolonomicTrajectory extends Action {
 
     // Action Stuff
     DriveTrain dt;
     Trajectory trajectory;
+    double heading;
     double radius;
 
     // Follower Stuff
@@ -28,17 +28,11 @@ public class FollowPurePursuitTrajectory extends Action {
     Pose2D lastPoint;
     Point pointToFollow;
 
-    public FollowPurePursuitTrajectory(DriveTrain dt, Trajectory trajectory, double radius) {
+    public FollowSetHeadingHolonomicTrajectory(DriveTrain dt, Trajectory trajectory, double radius, double heading) {
         this.dt = dt;
         this.trajectory = trajectory;
         this.radius = radius;
-    }
-
-    public FollowPurePursuitTrajectory(DriveTrain dt, Trajectory trajectory, double radius, boolean reversed) {
-        this.dt = dt;
-        this.trajectory = trajectory;
-        this.radius = radius;
-        this.reversed = reversed;
+        this.heading = heading;
     }
 
     @Override
@@ -55,14 +49,11 @@ public class FollowPurePursuitTrajectory extends Action {
     public void runAction() throws InterruptedException {
         pointToFollow = PurePursuit.getLookAheadPoint(extendedPath, dt, radius);
 
-        double angle = Math.toRadians(270) - Curve.getAngle(pointToFollow, dt.localizer.getPose().toPoint());
+        dt.runToPosition(pointToFollow.x, pointToFollow.y, heading);
 
-        dt.difRunToPosition(pointToFollow.x, pointToFollow.y, angle, reversed);
+        double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
 
-        error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
-
-        // Trajectory is Finished if we are within our distance tolerance
-        if (error < distanceTolerance) isComplete = true;
+        if(error < distanceTolerance) isComplete = true;
     }
 
     @Override
