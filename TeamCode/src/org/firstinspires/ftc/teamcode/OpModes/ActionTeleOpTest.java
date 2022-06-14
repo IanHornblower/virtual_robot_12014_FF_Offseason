@@ -27,7 +27,7 @@ public class ActionTeleOpTest extends LinearOpMode {
 
         Trajectory test = new Trajectory();
         test.add(new Pose2D(0, 0, 0));
-        test.add(new Pose2D(24, 24, 0));
+        test.add(new Pose2D(24, 24, Math.toRadians(90)));
         test.add(new Pose2D(24, 48, 0));
 
         Trajectory ReverseTest = new Trajectory();
@@ -35,21 +35,15 @@ public class ActionTeleOpTest extends LinearOpMode {
         ReverseTest.add(new Pose2D(24, 24, 0));
         ReverseTest.add(new Pose2D(0, 0, 0));
 
-        ActionSequence as = new ActionSequence();
-        as.addAction(new ForwardBackwardControl(actualRobot.driveTrain, -3000));
-        //as.addAction(new EncoderDriveEx(actualRobot.driveTrain, 1, 1, Math.toRadians(90), 3000, true));
-        //as.addFollowPurePursuitTrajectory(actualRobot.driveTrain, test, 8);
-        //as.addCustomAction(()->System.out.println("DQ"));
-        //as.addFollowPurePursuitTrajectory(actualRobot.driveTrain, ReverseTest, 8, true);
-        //as.addAction(new Wait(2));
-        //as.addRunToPosition(actualRobot.driveTrain, new Pose2D(24, 24, Math.toRadians(0)));
+        ActionSequence as = new ActionSequence(actualRobot);
+        as.addAction(new FollowActualTrajectory(actualRobot.driveTrain, new Trajectory(actualRobot.driveTrain, new Pose2D(24, 24, Math.toRadians(90)))));
+        as.addRotate(Math.toRadians(90));
 
-        runner.setActionSequence(as.getActionList());
+        runner.setActionSequence(as);
 
         waitForStart();
 
         while (opModeIsActive()) {
-
             // it works :)
 
             if(!runner.isComplete()) {
@@ -76,9 +70,6 @@ public class ActionTeleOpTest extends LinearOpMode {
             telemetry.addData("Pose Estimate", actualRobot.driveTrain.localizer.getPose().toString());
             telemetry.update();
         }
-
-
-
     }
 
 }

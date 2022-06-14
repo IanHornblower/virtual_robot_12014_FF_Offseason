@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.math.Point;
 import com.ThermalEquilibrium.homeostasis.Controllers.Feedback.BasicPID;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
 
-public class OdometricMotionProfile implements MotionProfile {
+public class OdometricMotionProfile {
 
     PIDCoefficients xPIDCoef, yPIDCoef, headingPIDCoef, forwardPIDCoef, turnPIDCoef;
     BasicPID xPID, yPID, headingPID, forwardPID, turnPID;
@@ -38,6 +38,16 @@ public class OdometricMotionProfile implements MotionProfile {
         double headingP = headingController.calculate(heading, pos.heading);
 
         dt.driveFieldCentric(xP, yP, headingP);
+    }
+
+    public void fastRunToPosition(DriveTrain dt, double x, double y, double heading, double speed) {
+        Pose2D pos = dt.localizer.getPose();
+
+        double xP = xPID.calculate(x, pos.x);
+        double yP = yPID.calculate(y, pos.y);
+        double headingP = headingController.calculate(heading, pos.heading);
+
+        dt.driveFieldCentric(xP * speed, yP * speed, headingP * speed);
     }
 
     public void difRunToPosition(DriveTrain dt, double x, double y, boolean reversed) {
@@ -87,10 +97,6 @@ public class OdometricMotionProfile implements MotionProfile {
 
         double headingP = headingController.calculate(heading, pos.heading);
         dt.driveFieldCentric(0, 0, headingP);
-    }
-
-    @Override
-    public void encoderDrive(DriveTrain dt, double x, double y, double heading, boolean fieldCentric) throws InterruptedException {
     }
 
 

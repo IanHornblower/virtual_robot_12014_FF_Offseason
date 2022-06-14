@@ -27,8 +27,9 @@ public class TestTeleOp extends LinearOpMode {
         Trajectory joe = new Trajectory();
 
         joe.add(new Pose2D(0, 0, Math.toRadians(0)));
-        joe.add(new Pose2D(24, 24, Math.toRadians(45)));
+        joe.add(new Pose2D(24, 24, Math.toRadians(90)));
         joe.add(new Pose2D(24, 48, Math.toRadians(90)));
+        joe.right(24, Trajectory.controlType.ROBOT);
 
         Trajectory oej = new Trajectory();
 
@@ -59,7 +60,7 @@ public class TestTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            f.tightHolonomicFollower(8);
+            f.actualHolonomicFollower(4);
 
             actualRobot.update();
 

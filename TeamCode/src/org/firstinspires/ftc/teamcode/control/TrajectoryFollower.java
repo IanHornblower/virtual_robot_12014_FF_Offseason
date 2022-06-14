@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.control;
 
 import com.ThermalEquilibrium.homeostasis.Parameters.PIDCoefficients;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.hardware.DriveConstants;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
 import org.firstinspires.ftc.teamcode.math.Curve;
@@ -95,7 +96,7 @@ public class TrajectoryFollower extends LinearOpMode {
             case RUNNING:
                 pointToFollow = PurePursuit.getLookAheadPoint(extendedPath, dt, radius);
 
-                dt.runToPosition(pointToFollow.x, pointToFollow.y, path.get(closestPointIndex).heading);
+                //dt.runToPosition(pointToFollow.x, pointToFollow.y, path.get(closestPointIndex).heading);
 
                 double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
 
@@ -144,7 +145,7 @@ public class TrajectoryFollower extends LinearOpMode {
 
                 double angle = Math.toRadians(270)-Curve.getAngle(pointToFollow, dt.localizer.getPose().toPoint());
 
-                dt.difRunToPosition(pointToFollow.x, pointToFollow.y, angle, reversed);
+                //dt.difRunToPosition(pointToFollow.x, pointToFollow.y, angle, reversed);
 
                 double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
 
@@ -177,7 +178,7 @@ public class TrajectoryFollower extends LinearOpMode {
             case RUNNING:
                 pointToFollow = PurePursuit.getLookAheadPoint(extendedPath, dt, radius);
 
-                dt.runToPosition(pointToFollow.x, pointToFollow.y, heading);
+                //dt.runToPosition(pointToFollow.x, pointToFollow.y, heading);
 
                 double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
 
@@ -217,7 +218,7 @@ public class TrajectoryFollower extends LinearOpMode {
             case RUNNING:
                 pointToFollow = PurePursuit.getLookAheadPoint(extendedPath, dt, radius);
 
-                dt.runToPosition(pointToFollow.x, pointToFollow.y, path.get(index).heading);
+                //dt.runToPosition(pointToFollow.x, pointToFollow.y, path.get(index).heading);
 
                 double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
 
@@ -265,9 +266,14 @@ public class TrajectoryFollower extends LinearOpMode {
                     index++;
                 }
 
-                dt.runToPosition(path.get(index+1).x, path.get(index+1).y, path.get(index+1).heading);
-
                 double error = Math.abs(dt.localizer.getPose().getDistanceFrom(lastPoint)) - radius;
+
+                if(index+2 > segmentLength.length) {
+                    //dt.runToPosition(path.get(index+1).x, path.get(index+1).y, path.get(index+1).heading);
+                }
+                else {
+                    //dt.fastRunToPosition(path.get(index+1).x, path.get(index+1).y, path.get(index+1).heading, 5);
+                }
 
                 // Trajectory is Finished if the timeout has been reached, or we are within our distance tolerance
                 if((timer.currentSeconds() > timeout) || (error < distanceTolerance)) state = STATE.COMPLETED;

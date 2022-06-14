@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.teamcode.control.EncoderMotionProfile;
-import org.firstinspires.ftc.teamcode.control.MotionProfile;
 import org.firstinspires.ftc.teamcode.control.OdometricMotionProfile;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces.Subsystem;
 import org.firstinspires.ftc.teamcode.math.Point;
@@ -32,10 +30,6 @@ public class DriveTrain implements Subsystem {
     public GyroIntegratedThreeWheelOdometry localizer;
 
     // TODO: REDO LATER
-
-    MotionProfile motionProfile = new OdometricMotionProfile(
-            xPID, yPID, headingPID, forwardPID, turnPID
-    );
 
     public DriveTrain(HardwareMap hwMap) {
         this.hwMap = hwMap;
@@ -173,22 +167,6 @@ public class DriveTrain implements Subsystem {
         }
 
         driveFieldCentric(vel.x, vel.y, vel.heading);
-    }
-
-    public void runToPosition(double x, double y, double heading) throws InterruptedException {
-        motionProfile.runToPosition(this, x, y, heading);
-    }
-
-    public void difRunToPosition(double x, double y, boolean reversed) throws InterruptedException {
-        motionProfile.difRunToPosition(this, x, y, reversed);
-    }
-
-    public void difRunToPosition(double x, double y, double heading, boolean reversed) throws InterruptedException {
-        motionProfile.difRunToPosition(this, x, y, heading, reversed);
-    }
-
-    public void rotate(double heading) throws InterruptedException {
-        motionProfile.rotate(this, heading);
     }
 
     @Override

@@ -12,7 +12,9 @@ public class DriveConstants {
 
     public static PIDCoefficients xPID = new PIDCoefficients(0.1, 0 ,0);
     public static PIDCoefficients yPID = new PIDCoefficients(0.1, 0 ,0);
-    public static PIDCoefficients headingPID = new PIDCoefficients(3, 0 ,0);
+    public static PIDCoefficients headingPID = new PIDCoefficients(1.3, 0 ,0);
+
+    public static PIDCoefficients trajectoryPID = new PIDCoefficients(0.07, 0 ,0);
 
     public static PIDCoefficients encoderHeadingPID = new PIDCoefficients(2, 0 ,0);
 
