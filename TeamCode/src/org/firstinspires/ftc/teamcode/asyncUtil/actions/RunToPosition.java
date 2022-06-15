@@ -44,7 +44,7 @@ public class RunToPosition extends Action {
         dt.driveFieldCentric(xP, yP, headingP);
 
         error = dt.localizer.getPose().getDistanceFrom(pos.toPoint());
-        isComplete = error < distanceTolerance;
+        isComplete = error < distanceTolerance && dt.getCombinedVelocity() < 0.5;
     }
 
     @Override

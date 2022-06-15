@@ -79,7 +79,7 @@ public class DriveTrain implements Subsystem {
 
         calculatePosition(
                 vector.hypot(),
-                vector.atan2() + localizer.getKalmanHeading() - Math.toRadians(90),
+                vector.atan2() + localizer.getPose().heading - Math.toRadians(90),
                 turn);
     }
 
@@ -88,7 +88,7 @@ public class DriveTrain implements Subsystem {
 
         calculatePosition(
                 vector.hypot(),
-                vector.atan2() - localizer.imu.getHeadingInRadians() + modHeading,
+                vector.atan2() - localizer.getPose().heading + modHeading,
                 turn);
     }
 
@@ -167,6 +167,13 @@ public class DriveTrain implements Subsystem {
         }
 
         driveFieldCentric(vel.x, vel.y, vel.heading);
+    }
+
+    public double getCombinedVelocity() {
+        double xVel = Math.abs(lateral.getVelocity());
+        double yVel = ( Math.abs(left.getVelocity()) + Math.abs(right.getVelocity()) ) / 2.0;
+
+        return xVel * yVel;
     }
 
     @Override

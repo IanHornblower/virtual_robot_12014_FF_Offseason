@@ -84,7 +84,7 @@ public class FollowActualTrajectory extends Action {
 
         dt.driveFieldCentric(xP, yP, headingP);
 
-        if(error < distanceTolerance) isComplete = true;
+        if(error < distanceTolerance && dt.getCombinedVelocity() < 0.5) isComplete = true;
     }
 
     @Override

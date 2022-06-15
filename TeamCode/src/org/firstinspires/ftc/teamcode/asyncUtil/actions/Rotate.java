@@ -39,7 +39,7 @@ public class Rotate extends Action {
         dt.driveFieldCentric(0, 0, headingP);
 
         error = Curve.getShortestDistance(heading, dt.localizer.getPose().heading);
-        isComplete = error < rotationTolerance;
+        isComplete = error < rotationTolerance && dt.getCombinedVelocity() < 0.5;
     }
 
     @Override

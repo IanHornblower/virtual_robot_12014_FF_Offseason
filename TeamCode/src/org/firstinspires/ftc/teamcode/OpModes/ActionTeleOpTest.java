@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.math.Pose2D;
 
 import java.util.ArrayList;
 
+@Disabled
 @TeleOp(name = "Action Testing", group = "no")
 public class ActionTeleOpTest extends LinearOpMode {
 
@@ -26,9 +28,9 @@ public class ActionTeleOpTest extends LinearOpMode {
         actualRobot.driveTrain.setStartPosition(new Pose2D(0, 0, Math.toRadians(0)));
 
         Trajectory test = new Trajectory();
-        test.add(new Pose2D(0, 0, 0));
-        test.add(new Pose2D(24, 24, Math.toRadians(90)));
-        test.add(new Pose2D(24, 48, 0));
+        test.add(new Pose2D(0, 0, 90));
+        test.add(new Pose2D(24, 24, Math.toRadians(45)));
+        test.add(new Pose2D(24, 48, Math.toRadians(90)));
 
         Trajectory ReverseTest = new Trajectory();
         ReverseTest.add(new Pose2D(24, 48, 0));
@@ -36,8 +38,8 @@ public class ActionTeleOpTest extends LinearOpMode {
         ReverseTest.add(new Pose2D(0, 0, 0));
 
         ActionSequence as = new ActionSequence(actualRobot);
-        as.addAction(new FollowActualTrajectory(actualRobot.driveTrain, new Trajectory(actualRobot.driveTrain, new Pose2D(24, 24, Math.toRadians(90)))));
-        as.addRotate(Math.toRadians(90));
+        as.addAction(new FollowHolonomicPurePursuitTrajectory(actualRobot.driveTrain, test, 8));
+        //as.addRotate(Math.toRadians(90));
 
         runner.setActionSequence(as);
 
@@ -53,6 +55,7 @@ public class ActionTeleOpTest extends LinearOpMode {
                 stop();
             }
 
+            telemetry.addData("Velocity", actualRobot.driveTrain.getCombinedVelocity());
             telemetry.addLine("Front Left = 0, Front Right = 1, Back Left = 2, Back Right = 3");
 
             for(DcMotorEx motors : actualRobot.driveTrain.motors) {

@@ -40,7 +40,7 @@ public class IMURotate extends Action {
         dt.driveFieldCentric(0, 0, headingP);
 
         error = Curve.getShortestDistance(heading, dt.localizer.imu.getHeadingInRadians());
-        isComplete = error < rotationTolerance;
+        isComplete = error < rotationTolerance && dt.getCombinedVelocity() < 0.5;
     }
 
     @Override

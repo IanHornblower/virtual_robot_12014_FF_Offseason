@@ -95,7 +95,7 @@ public class FollowPurePursuitTrajectory extends Action {
         );
 
         // Trajectory is Finished if we are within our distance tolerance
-        if (error < distanceTolerance) isComplete = true;
+        if (error < distanceTolerance && dt.getCombinedVelocity() < 0.5) isComplete = true;
     }
 
     @Override

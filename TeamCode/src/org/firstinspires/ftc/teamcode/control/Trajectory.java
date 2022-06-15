@@ -57,6 +57,9 @@ public class Trajectory extends LinearOpMode {
         return isStarted;
     }
 
+    public Pose2D end() {
+        return path.get(path.size()-1);
+    }
     public static double[] getSegmentLengths(ArrayList<Pose2D> path) {
         double[] lengths = new double[path.size()-1];
         for(int i = 0; i < path.size()-1; i++) {
