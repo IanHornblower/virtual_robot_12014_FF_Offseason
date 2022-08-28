@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.math;
 
-import javafx.geometry.Pos;
-import org.firstinspires.ftc.teamcode.util.AngleUtil;
-
 import static org.firstinspires.ftc.teamcode.util.MathUtil.roundPlaces;
 
 public class Pose2D {
@@ -45,6 +42,16 @@ public class Pose2D {
         return Math.toDegrees(getHeading());
     }
 
+    public Pose2D rotate(double radians) {
+        double cosA = Math.cos(radians);
+        double sinA = Math.sin(radians);
+
+        double x = this.x * cosA - this.y * sinA;
+        double y = this.x * sinA + this.y * cosA;
+
+        return new Pose2D(x, y, heading);
+    }
+
     public void addPoint(Point p) {
         x += p.x;
         y += p.y;
@@ -54,14 +61,6 @@ public class Pose2D {
         x += p.x;
         y += p.y;
         heading += p.heading;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getX() {
-        return x;
     }
 
     public Point toPoint() {
@@ -84,6 +83,6 @@ public class Pose2D {
     }
 
     public static double getDistance(Pose2D start, Point end) {
-        return Math.sqrt(Math.pow((end.getX()-start.getX()),2)+Math.pow((end.getY()-start.getY()),2));
+        return Math.sqrt(Math.pow((end.x-start.x),2)+Math.pow((end.y-start.y),2));
     }
 }

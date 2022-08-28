@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces;
+package org.firstinspires.ftc.teamcode.hardware.interfaces;
 
 public interface Subsystem {
 

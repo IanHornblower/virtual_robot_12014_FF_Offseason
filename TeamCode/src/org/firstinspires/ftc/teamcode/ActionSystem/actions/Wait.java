@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.asyncUtil.actions;
+package org.firstinspires.ftc.teamcode.ActionSystem.actions;
 
-import org.firstinspires.ftc.teamcode.asyncUtil.Action;
+import org.firstinspires.ftc.teamcode.ActionSystem.Action;
 import org.firstinspires.ftc.teamcode.util.Timer;
 
 public class Wait extends Action {

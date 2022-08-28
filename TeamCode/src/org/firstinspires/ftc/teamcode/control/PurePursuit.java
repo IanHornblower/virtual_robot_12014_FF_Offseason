@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class PurePursuit {
 
-    public static Point getLookAheadPoint(ArrayList<Pose2D> path, DriveTrain dt, double radius) {
+    public static Point getLookAheadPoint(ArrayList<Pose2D> path, Pose2D robotPosition, double radius) {
         Point pointToFollow = path.get(0).toPoint();
         double t1;
         double t2;
@@ -17,7 +17,7 @@ public class PurePursuit {
             Point E = path.get(i).toPoint();
             Point L = path.get(i + 1).toPoint();
 
-            Point f = E.subtract(dt.localizer.getPose().toPoint());
+            Point f = E.subtract(robotPosition.toPoint());
             Point d = L.subtract(E);
 
             double a = d.dot(d);

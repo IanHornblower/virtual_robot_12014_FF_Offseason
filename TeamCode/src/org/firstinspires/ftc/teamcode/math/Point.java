@@ -11,18 +11,11 @@ public class Point {
         this.y = y;
     }
 
-    public Point() {
-
-    }
-
-    public void invertPose() {
+    public Point invertPoint() {
         double tempX = x, tempY = y;
         x = tempY;
         y = tempX;
-    }
-
-    public Point invertPoint() {
-        return new Point(y,x);
+        return new Point(x,y);
     }
 
     public void scalePose(double scaleFactor) {
@@ -38,55 +31,40 @@ public class Point {
         y *= -1;
     }
 
-    public Point scalar(double scaleFactor) {
-        return new Point(x * scaleFactor, y * scaleFactor);
-    }
-
     public Point add(Point point) {
         return new Point(x+point.x, y+point.y);
+    }
+
+    public Point add(double value) {
+        return new Point(x + value, y + value);
     }
 
     public Point subtract(Point point) {
         return new Point(x-point.x, y-point.y);
     }
 
+    public Point subtract(double value) {
+        return new Point(x - value, y - value);
+    }
+
+    public Point scalar(double scaleFactor) {
+        return new Point(x * scaleFactor, y * scaleFactor);
+    }
+
+    public Point div(double n) {
+        return new Point(x/n, y/n);
+    }
+
     public double dot(Point other) {
         return x * other.x + y * other.y;
     }
 
-    public double getY() {
-        return y;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double hypot() { // Negated Y
-        return Math.hypot(x, -y);
-    }
-
-    public static boolean inRange(Point currPoint, Point endPoint, double range) {
-        double dist = getDistance(currPoint, endPoint);
-
-        return dist < range;
+    public double hypot() {
+        return Math.hypot(x, y);
     }
 
     public double atan2() { // Inverted and Negated Y
-        return Math.atan2(x, -y);
-    }
-
-    public static double getDistance(Point start, Point end) {
-        return Math.sqrt(Math.pow((end.getX()-start.getX()),2)+Math.pow((end.getY()-start.getY()),2));
-    }
-
-    public static boolean inRange(double var, double constant, double range) {
-        if(constant-range<=var && constant+range>=var) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return Math.atan2(x, y);
     }
 
     public Point rotate(double angleRadians) {

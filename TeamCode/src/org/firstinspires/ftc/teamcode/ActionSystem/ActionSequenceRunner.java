@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.asyncUtil;
+package org.firstinspires.ftc.teamcode.ActionSystem;
 
-import org.firstinspires.ftc.teamcode.hardware.RobotBase;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
 
 import java.util.ArrayList;
 
 public class ActionSequenceRunner {
 
-    RobotBase robotBase;
+    Robot robotBase;
 
     ArrayList<Action> actionList;
 
@@ -16,7 +16,7 @@ public class ActionSequenceRunner {
 
     Action currentPersistentAction = null;
 
-    public ActionSequenceRunner(RobotBase robotBase) {
+    public ActionSequenceRunner(Robot robotBase) {
         this.robotBase = robotBase;
     }
 
@@ -28,7 +28,7 @@ public class ActionSequenceRunner {
         this.actionList = actionSequence.getActionList();
     }
 
-    public void update() throws InterruptedException {
+    public void update() throws Exception {
         if (!hasStartedAction) {
             actionList.get(currentState).startAction();
             hasStartedAction = true;

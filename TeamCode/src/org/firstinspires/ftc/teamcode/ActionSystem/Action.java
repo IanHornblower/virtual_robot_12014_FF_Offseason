@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.asyncUtil;
+package org.firstinspires.ftc.teamcode.ActionSystem;
 
 public abstract class Action {
 
@@ -6,9 +6,11 @@ public abstract class Action {
 
     public double error;
 
+    public double[] duration;
+
     public abstract void startAction();
 
-    public abstract void runAction() throws InterruptedException;
+    public abstract void runAction() throws Exception;
 
     public abstract void stopAction();
 

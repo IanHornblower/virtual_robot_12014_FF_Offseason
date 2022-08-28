@@ -2,28 +2,19 @@ package org.firstinspires.ftc.teamcode.control;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DriveTrain;
+import org.firstinspires.ftc.teamcode.math.Point;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
-import org.firstinspires.ftc.teamcode.util.AngleUtil;
 
 import java.util.ArrayList;
 
 public class Trajectory extends LinearOpMode {
-    // TODO: create Holonomic PP point follower w/ heading interpolation and w/o interpolation3
-    // TODO: create simple Diffy PP point follower and implent Ramsete if i have time (prolly not)
-
     ArrayList<Pose2D> path = new ArrayList<>();
-    boolean isCompleted = false;
-    boolean isStarted = false;
-
-    public Trajectory() {
-    }
-
-    public Trajectory(DriveTrain dt, Pose2D end) {
-        path.add(dt.localizer.getPose());
-        path.add(end);
-    }
 
     public enum controlType {FIELD, ROBOT}
+
+    public Trajectory(Pose2D start) {
+        path.add(start);
+    }
 
     public Trajectory(ArrayList<Pose2D> path) {
         this.path = path;
@@ -37,24 +28,8 @@ public class Trajectory extends LinearOpMode {
         path.add(pose);
     }
 
-    public void blitz() {
-        path.clear();
-    }
-
-    public void complete() {
-        isCompleted = true;
-    }
-
-    public boolean isComplete() {
-        return isCompleted;
-    }
-
-    public void setStart() {
-        isStarted = true;
-    }
-
-    public boolean getStart() {
-        return isStarted;
+    public void add(Point point) {
+        path.add(new Pose2D(point, 0));
     }
 
     public Pose2D end() {
@@ -79,8 +54,8 @@ public class Trajectory extends LinearOpMode {
                 path.add(point);
                 break;
             case ROBOT:
-                double x = distance * Math.cos(AngleUtil.interpretRadians(previous.heading));
-                double y = distance * Math.sin(AngleUtil.interpretRadians(previous.heading));
+                double x = distance * Math.cos(previous.heading);
+                double y = distance * Math.sin(previous.heading);
                 point = new Pose2D(previous.x + x, previous.y + y, previous.heading);
                 path.add(point);
                 break;
@@ -98,8 +73,8 @@ public class Trajectory extends LinearOpMode {
                 path.add(point);
                 break;
             case ROBOT:
-                double x = distance * Math.cos(AngleUtil.interpretRadians(previous.heading));
-                double y = distance * Math.sin(AngleUtil.interpretRadians(previous.heading));
+                double x = distance * Math.cos(previous.heading);
+                double y = distance * Math.sin(previous.heading);
                 point = new Pose2D(previous.x + x, previous.y + y, previous.heading);
                 path.add(point);
                 break;
@@ -116,8 +91,8 @@ public class Trajectory extends LinearOpMode {
                 path.add(point);
                 break;
             case ROBOT:
-                double x = distance * Math.cos(AngleUtil.interpretRadians(previous.heading + Math.PI/2.0));
-                double y = distance * Math.sin(AngleUtil.interpretRadians(previous.heading + Math.PI/2.0));
+                double x = distance * Math.cos(previous.heading + Math.PI/2.0);
+                double y = distance * Math.sin(previous.heading + Math.PI/2.0);
                 point = new Pose2D(previous.x + x, previous.y + y, previous.heading);
                 path.add(point);
                 break;
@@ -134,8 +109,8 @@ public class Trajectory extends LinearOpMode {
                 path.add(point);
                 break;
             case ROBOT:
-                double x = distance * Math.cos(AngleUtil.interpretRadians(previous.heading - Math.PI/2.0));
-                double y = distance * Math.sin(AngleUtil.interpretRadians(previous.heading - Math.PI/2.0));
+                double x = distance * Math.cos(previous.heading - Math.PI/2.0);
+                double y = distance * Math.sin(previous.heading - Math.PI/2.0);
                 point = new Pose2D(previous.x + x, previous.y + y, previous.heading);
                 path.add(point);
                 break;

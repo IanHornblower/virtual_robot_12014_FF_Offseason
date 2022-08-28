@@ -1,35 +1,27 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
+import com.ThermalEquilibrium.homeostasis.Utils.Vector;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.teamcode.control.OdometricMotionProfile;
-import org.firstinspires.ftc.teamcode.hardware.subsystems.interfaces.Subsystem;
-import org.firstinspires.ftc.teamcode.math.Point;
+import javafx.geometry.Pos;
+import org.firstinspires.ftc.teamcode.hardware.interfaces.Subsystem;
 import org.firstinspires.ftc.teamcode.math.Pose2D;
+import org.firstinspires.ftc.teamcode.util.Encoder;
 
-import javax.swing.*;
-
-import static org.firstinspires.ftc.teamcode.hardware.DriveConstants.*;
+import static org.firstinspires.ftc.teamcode.hardware.DriveConstraints.*;
 
 public class DriveTrain implements Subsystem {
-
     DcMotorEx frontLeft, frontRight, backLeft, backRight;
-    DcMotorEx left, right, lateral;
+    Encoder left, right, lateral;
 
     double fl, fr, bl, br;
 
-    double[] abstractMotor = new double[] {fl, fr, bl, br};
-
     public DcMotorEx[] motors;
-    public DcMotorEx[] deadWheels;
+    public Encoder[] deadWheels;
 
     HardwareMap hwMap;
-
-    public GyroIntegratedThreeWheelOdometry localizer;
-
-    // TODO: REDO LATER
 
     public DriveTrain(HardwareMap hwMap) {
         this.hwMap = hwMap;
@@ -39,90 +31,19 @@ public class DriveTrain implements Subsystem {
         backLeft = hwMap.get(DcMotorEx.class, "back_left_motor");
         backRight = hwMap.get(DcMotorEx.class, "back_right_motor");
 
-        left = hwMap.get(DcMotorEx.class, "enc_left");
-        right = hwMap.get(DcMotorEx.class, "enc_right");
-        lateral = hwMap.get(DcMotorEx.class, "enc_x");
+        left = new Encoder(hwMap.get(DcMotorEx.class, "enc_left"));
+        right = new Encoder(hwMap.get(DcMotorEx.class, "enc_right"));
+        lateral = new Encoder(hwMap.get(DcMotorEx.class, "enc_x"));
 
         motors = new DcMotorEx[] {frontLeft, frontRight, backLeft, backRight};
-        deadWheels = new DcMotorEx[] {left, right, lateral};
-
-        localizer = new GyroIntegratedThreeWheelOdometry(this);
-    }
-
-    public void setMotorPowers(double x, double y, double turn) {
-        double h = Math.hypot(x, y);
-        double theta = Math.atan2(y, x) - Math.toRadians(45);
-
-        double[] motorVector = new double[] {
-                (h * Math.cos(theta) + turn),
-                (h * Math.sin(theta) - turn),
-                (h * Math.sin(theta) + turn),
-                (h * Math.cos(theta) - turn)
-        };
-
-        setMotorPowers(motorVector[0], motorVector[1],
-                       motorVector[2], motorVector[3]);
-    }
-
-    public void calculatePosition(double dr, double theta, double turn) {
-        double sin = Math.sin(theta);
-        double cos = Math.cos(theta);
-
-        double mx = cos*dr;
-        double my = sin*dr;
-
-        setMotorPowers(mx, my, turn);
-    }
-
-    public void driveFieldCentric(double x, double y, double turn) {
-        Point vector = new Point(x, y);
-
-        calculatePosition(
-                vector.hypot(),
-                vector.atan2() + localizer.getPose().heading - Math.toRadians(90),
-                turn);
-    }
-
-    public void driveFieldCentric(double x, double y, double turn, double modHeading) {
-        Point vector = new Point(x, y);
-
-        calculatePosition(
-                vector.hypot(),
-                vector.atan2() - localizer.getPose().heading + modHeading,
-                turn);
-    }
-
-    public void setMotorPowers(double fl, double fr, double bl, double br) {
-        this.fl = fl;
-        this.fr = fr;
-        this.bl = bl;
-        this.br = br;
-    }
-
-    public void stopDriveTrain() {
-        setMotorPowers(0, 0, 0, 0);
-    }
-
-    public void emergencyStop() {
-        for(DcMotorEx m : motors) {
-            m.setPower(0.0);
-            m.setMotorDisable();
-        }
+        deadWheels = new Encoder[] {left, right, lateral};
     }
 
     public HardwareMap getHardwareMap() {
         return hwMap;
     }
 
-    public void setStartPosition(Pose2D pose) {
-        localizer.setStartPosition(pose);
-    }
-
     public void resetEncoders() {
-        for(DcMotorEx odometer:deadWheels) {
-            odometer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            odometer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
         for(DcMotorEx motors:motors) {
             motors.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motors.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -149,31 +70,41 @@ public class DriveTrain implements Subsystem {
         setMotorPowers(vel.x, vel.y, vel.heading);
     }
 
-    public void setFieldCentricDrivePower(double x, double y, double heading) {
-        Pose2D vel = new Pose2D(x, y, heading);
-
-        if (Math.abs(x) + Math.abs(y)
-                + Math.abs(heading) > 1) {
-            // re-normalize the powers according to the weights
-            double denom = VX_WEIGHT * Math.abs(x)
-                    + VY_WEIGHT * Math.abs(y)
-                    + TURN_WEIGHT * Math.abs(heading);
-
-            vel = new Pose2D(
-                    VX_WEIGHT * x,
-                    VY_WEIGHT * y,
-                    TURN_WEIGHT * heading
-            ).div(denom);
-        }
-
-        driveFieldCentric(vel.x, vel.y, vel.heading);
+    public void setWeightedDrivePower(Pose2D pose) {
+        setWeightedDrivePower(pose.x, pose.y, pose.heading);
     }
 
-    public double getCombinedVelocity() {
-        double xVel = Math.abs(lateral.getVelocity());
-        double yVel = ( Math.abs(left.getVelocity()) + Math.abs(right.getVelocity()) ) / 2.0;
+    public void setMotorPowers(double x, double y, double t) {
+        double k = (dt_trackWidth + wheelBase) / 2.0;
 
-        return xVel * yVel;
+        double power = Math.hypot(x, y) * Math.sqrt(2.0); // sqrt(2) == 2 * sin/cos(45)
+        double angle = Math.atan2(y, x) - Math.PI / 4.0;
+
+        double fl = power * Math.cos(angle) + Math.toRadians(k * t) * (maxAngularVelocity / maxVelocity);
+        double bl = power * Math.sin(angle) + Math.toRadians(k * t) * (maxAngularVelocity / maxVelocity);
+        double fr = power * Math.sin(angle) - Math.toRadians(k * t) * (maxAngularVelocity / maxVelocity);
+        double br = power * Math.cos(angle) - Math.toRadians(k * t) * (maxAngularVelocity / maxVelocity);
+
+        setMotorPowers(fl, fr, bl, br);
+    }
+
+    public void setMotorPowers(double fl, double fr, double bl, double br) {
+        this.fl = fl;
+        this.fr = fr;
+        this.bl = bl;
+        this.br = br;
+    }
+
+    public void setMotorPowers(Vector vector) {
+        setMotorPowers(vector.get(0), vector.get(1));
+    }
+
+    public void setMotorPowers(double left, double right) {
+        setMotorPowers(left, right, left, right);
+    }
+
+    public void stopDriveTrain() {
+        setMotorPowers(0, 0, 0, 0);
     }
 
     @Override
@@ -186,26 +117,10 @@ public class DriveTrain implements Subsystem {
         }
 
         resetEncoders();
-
-        localizer.initDoubleSuppliers(
-                ()-> -left.getCurrentPosition(),
-                ()-> right.getCurrentPosition(),
-                ()-> lateral.getCurrentPosition()
-        );
-
-        localizer.setConstants(12, 1120, 1, 0.0);
-        localizer.setMeasurement(GyroIntegratedThreeWheelOdometry.inputMeasurement.INCH);
-
-        localizer.setKalmanConstants(0.0, 1, 3, 1, 0.0);
-
-        localizer.init();
     }
-
 
     @Override
     public void update() throws InterruptedException {
-        localizer.update();
-
         frontLeft.setPower(fl);
         frontRight.setPower(fr);
         backLeft.setPower(bl);

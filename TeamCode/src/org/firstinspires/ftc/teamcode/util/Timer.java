@@ -1,11 +1,20 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.EmptyStackException;
+
 public class Timer {
 
     private long startTime;
+    private long previousTime;
+    private long elapsedTime;
+    boolean paused = false;
 
     public Timer() {
         startTime = 0;
+        previousTime = 0;
+        elapsedTime = 0;
     }
 
     public void addSeconds(double seconds) {
@@ -24,11 +33,35 @@ public class Timer {
         startTime = (long) (System.nanoTime());
     }
 
+    public void pause() {
+        paused = true;
+    }
+
+    public void resume() {
+        paused = false;
+    }
+
     public double currentMills() {
-        return (System.nanoTime() - startTime)/1e-6;
+        if(!paused) {
+            previousTime = System.nanoTime();
+            return (System.nanoTime() - startTime + elapsedTime)*1e-6;
+
+        }
+        else {
+            elapsedTime = previousTime - System.nanoTime();
+            return (previousTime - startTime)*1e-6;
+        }
     }
 
     public double currentSeconds() {
-        return (System.nanoTime() - startTime)*1e-9;
+        if(!paused) {
+            previousTime = System.nanoTime();
+            return (System.nanoTime() - startTime + elapsedTime)*1e-9;
+
+        }
+        else {
+            elapsedTime = previousTime - System.nanoTime();
+            return (previousTime - startTime)*1e-9;
+        }
     }
 }
